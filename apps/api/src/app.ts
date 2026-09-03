@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import { healthRoutes } from './routes/health.js';
+import { eventsRoutes } from './routes/events.js';
 
 export function buildApp() {
   const app = Fastify({
@@ -9,6 +10,7 @@ export function buildApp() {
   });
 
   app.register(healthRoutes);
+  app.register(eventsRoutes);
 
   return app;
 }
