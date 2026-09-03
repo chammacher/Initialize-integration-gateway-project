@@ -12,4 +12,7 @@
   "dependencies": {
     "@integration-gateway/contracts": "0.1.0"
   }
+  ,"engines": {
+    "node": ">=24"
+  }
 }

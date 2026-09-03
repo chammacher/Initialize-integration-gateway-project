@@ -20,3 +20,14 @@ export const CanonicalPersonSchema = z.object({
 });
 
 export type CanonicalPerson = z.infer<typeof CanonicalPersonSchema>;
+
+export const IncomingEventStatus = {
+  RECEIVED: 'received',
+  QUEUED: 'queued',
+  PROCESSING: 'processing',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+  QUEUE_FAILED: 'queue_failed',
+} as const;
+
+export type IncomingEventStatus = typeof IncomingEventStatus[keyof typeof IncomingEventStatus];

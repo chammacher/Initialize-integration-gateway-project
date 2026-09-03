@@ -17,16 +17,24 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U gateway -d integration_gateway"
           --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 10
 
     env:
       DATABASE_URL: postgres://gateway:gateway@localhost:5432/integration_gateway
+      REDIS_URL: redis://localhost:6379
 
     steps:
       - uses: actions/checkout@v4
       - name: Use Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - name: Install dependencies
         run: npm ci
       - name: Wait for Postgres
@@ -36,7 +44,10 @@ jobs:
             sleep 1
           done
       - name: Build workspaces
-        run: npm run build
+        run: |
+          # Build contracts first so other packages can import its compiled exports/types
+          npm run build -w @integration-gateway/contracts
+          npm run build
       - name: Run DB migrations
         run: npm run db:migrate
       - name: Run tests
