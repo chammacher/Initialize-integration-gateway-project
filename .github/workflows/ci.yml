@@ -44,7 +44,10 @@ jobs:
             sleep 1
           done
       - name: Build workspaces
-        run: npm run build
+        run: |
+          # Build contracts first so other packages can import its compiled exports/types
+          npm run build -w @integration-gateway/contracts
+          npm run build
       - name: Run DB migrations
         run: npm run db:migrate
       - name: Run tests
