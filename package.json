@@ -1,0 +1,29 @@
+{
+  "name": "integration-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A production-style integration gateway for validating, normalizing, and asynchronously processing external events.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @integration-gateway/api",
+    "dev:worker": "npm run dev -w @integration-gateway/worker",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "infra:up": "docker compose up -d postgres redis",
+    "infra:down": "docker compose down",
+    "db:migrate": "npm run migrate -w @integration-gateway/database"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0",
+    "typescript": "^5.9.0"
+  }
+}
