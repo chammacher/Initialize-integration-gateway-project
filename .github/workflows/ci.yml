@@ -1,20 +1,45 @@
 name: CI
 
-on:
-  push:
-    branches: [main]
-  pull_request:
+on: [push, pull_request]
 
 jobs:
-  validate:
+  test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: gateway
+          POSTGRES_PASSWORD: gateway
+          POSTGRES_DB: integration_gateway
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U gateway -d integration_gateway"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://gateway:gateway@localhost:5432/integration_gateway
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Use Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 24
-          cache: npm
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Wait for Postgres
+        run: |
+          for i in {1..30}; do
+            pg_isready -h localhost -p 5432 -U gateway -d integration_gateway && break
+            sleep 1
+          done
+      - name: Build workspaces
+        run: npm run build
+      - name: Run DB migrations
+        run: npm run db:migrate
+      - name: Run tests
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
