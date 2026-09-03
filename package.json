@@ -11,6 +11,8 @@
     "dev:api": "npm run dev -w @integration-gateway/api",
     "dev:worker": "npm run dev -w @integration-gateway/worker",
     "build": "npm run build --workspaces --if-present",
+    "pretest": "npm run build",
+    "prepare": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "format": "prettier --write .",
