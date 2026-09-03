@@ -2,6 +2,8 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
 import { createDatabasePool } from '@integration-gateway/database/src/index.js';
+import { Queue } from 'bullmq';
+import { IncomingEventStatus } from '@integration-gateway/contracts';
 
 const bodySchema = z.any().optional();
 
@@ -50,7 +52,25 @@ export async function eventsRoutes(app: FastifyInstance) {
       [id, sourceId, externalEventId, idempotencyKey, eventType, parsed.success ? parsed.data : {}],
     );
 
-    reply.code(202);
-    return { status: 'accepted' };
+    // Enqueue event ID only
+    const redisConnection = { connection: process.env.REDIS_URL };
+    const queue = new Queue('integration-events', redisConnection as any);
+
+    try {
+      await queue.add('process-integration-event', { eventId: id });
+
+      await pool.query(
+        'UPDATE incoming_events SET processing_status = $1 WHERE id = $2',
+        [IncomingEventStatus.QUEUED, id],
+      );
+
+      reply.code(202);
+      return { eventId: id, status: IncomingEventStatus.QUEUED };
+    } catch (err) {
+      // Mark queue failure; in future replace with transactional outbox
+      await pool.query('UPDATE incoming_events SET processing_status = $1 WHERE id = $2', [IncomingEventStatus.QUEUE_FAILED, id]);
+      reply.code(503);
+      return { error: 'queue unavailable' };
+    }
   });
 }

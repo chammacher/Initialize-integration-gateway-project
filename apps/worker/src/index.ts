@@ -7,4 +7,6 @@ console.log(
   }),
 );
 
-// Queue registration will be added when event ingestion is implemented.
+import { startWorker } from './processor.js';
+
+startWorker();
