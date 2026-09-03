@@ -13,7 +13,8 @@
   "dependencies": {
     "@integration-gateway/contracts": "0.1.0",
     "fastify": "^5.12.1",
-    "zod": "^4.0.0"
+    "zod": "^4.0.0",
+    "@integration-gateway/database": "0.1.0"
   },
   "devDependencies": {
     "tsx": "^4.0.0",
