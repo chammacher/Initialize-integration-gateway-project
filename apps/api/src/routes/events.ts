@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
 import { createDatabasePool } from '@integration-gateway/database/src/index.js';
 
-const bodySchema = z.record(z.any()).optional();
+const bodySchema = z.any().optional();
 
 export async function eventsRoutes(app: FastifyInstance) {
   const pool = createDatabasePool();
@@ -26,7 +26,8 @@ export async function eventsRoutes(app: FastifyInstance) {
       return { error: 'Invalid JSON body' };
     }
 
-    const sourceKey = String(request.params.source);
+    const params = request.params as Record<string, unknown>;
+    const sourceKey = String(params.source ?? '');
 
     // Identify integration source
     const res = await pool.query(
