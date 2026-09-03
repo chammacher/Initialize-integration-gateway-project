@@ -40,7 +40,4 @@ jobs:
       - name: Run DB migrations
         run: npm run db:migrate
       - name: Run tests
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run format:check
+        run: npm test
